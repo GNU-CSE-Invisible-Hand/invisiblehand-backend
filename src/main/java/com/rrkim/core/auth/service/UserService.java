@@ -2,11 +2,11 @@ package com.rrkim.core.auth.service;
 
 import com.rrkim.core.auth.constant.RoleType;
 import com.rrkim.core.auth.domain.Eula;
+import com.rrkim.core.auth.domain.Role;
+import com.rrkim.core.auth.domain.User;
 import com.rrkim.core.auth.dto.data.UserDto;
 import com.rrkim.core.auth.dto.request.CheckIdRequestDto;
 import com.rrkim.core.auth.dto.request.SignUpRequestDto;
-import com.rrkim.core.auth.domain.Role;
-import com.rrkim.core.auth.domain.User;
 import com.rrkim.core.auth.dto.request.UpdateUserInfoRequestDto;
 import com.rrkim.core.auth.repository.EulaRepository;
 import com.rrkim.core.auth.repository.RoleRepository;
@@ -15,29 +15,24 @@ import com.rrkim.core.auth.repository.UserRepository;
 import com.rrkim.core.auth.util.AuthUtility;
 import com.rrkim.core.auth.vo.UserVO;
 import com.rrkim.core.common.exception.UnhandledExecutionException;
-import com.rrkim.core.common.util.RequestUtility;
-import com.rrkim.module.news.domain.Tag;
-import com.rrkim.module.news.repository.TagRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import java.util.Optional;
-
-import jakarta.validation.Valid;
 
 import java.util.List;
+import java.util.Optional;
 
 @Validated
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
-public class UserService  {
+public class UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final TagRepository tagRepository;
     private final PasswordEncoder passwordEncoder;
     private final EulaRepository eulaRepository;
     private final UserQRepository userQRepository;
@@ -64,7 +59,7 @@ public class UserService  {
         List<Eula> eulas = eulaRepository.findByRequireTrueOrEulaIdIn(agreedEulaIds);
         List<String> requireEulaIds = eulas.stream().filter(Eula::isRequireYn).map(Eula::getEulaId).toList();
         List<Eula> agreeEulas = eulas.stream().filter(d -> agreedEulaIds.contains(d.getEulaId())).toList();
-        if(requireEulaIds.stream().anyMatch(d -> !agreedEulaIds.contains(d))) {
+        if (requireEulaIds.stream().anyMatch(d -> !agreedEulaIds.contains(d))) {
             throw new UnhandledExecutionException("auth.eulaAgreementRequired");
         }
         user.addEula(agreeEulas);
@@ -72,10 +67,6 @@ public class UserService  {
         List<RoleType> roleTypes = List.of(RoleType.USER);
         List<Role> roles = roleRepository.findAllByRoleTypeIn(roleTypes);
         user.addRole(roles);
-
-        List<String> interestTagIds = signUpRequestDto.getInterestTagIds();
-        List<Tag> tags = tagRepository.findTagByTagIdIn(interestTagIds);
-        user.addInterestTag(tags);
 
         userRepository.save(user);
         return new UserDto(user);
@@ -90,7 +81,7 @@ public class UserService  {
 
     public UserDto getUserInfo() {
         UserVO userVO = AuthUtility.getUserVO();
-        if(userVO == null) {
+        if (userVO == null) {
             throw new UnhandledExecutionException("auth.forbidden");
         }
 
@@ -108,9 +99,9 @@ public class UserService  {
     public UserDto updateUserInfo(UpdateUserInfoRequestDto updateUserInfoRequestDto) {
         String userId = updateUserInfoRequestDto.getUserId();
         UserVO userVO = AuthUtility.getUserVO();
-        if(userVO == null) {
+        if (userVO == null) {
             throw new UnhandledExecutionException("auth.unauthorized");
-        } else if(!userVO.getUserId().equals(userId)) {
+        } else if (!userVO.getUserId().equals(userId)) {
             throw new UnhandledExecutionException("auth.modifyForbidden");
         }
 
@@ -133,9 +124,6 @@ public class UserService  {
         Optional.ofNullable(updateUserInfoRequestDto.getBirthDate())
                 .ifPresent(user::setBirthDate);
 
-        // 관심 태그 업데이트
-        updateInterestTags(user, updateUserInfoRequestDto.getInterestTagIds());
-
         return getUserInfo();
     }
 
@@ -153,12 +141,4 @@ public class UserService  {
                 && newPassword != null && !newPassword.isEmpty();
     }
 
-    private void updateInterestTags(User user, List<String> interestTagIds) {
-        if (interestTagIds != null && !interestTagIds.isEmpty()) {
-            List<Tag> interestTags = tagRepository.findTagByTagIdIn(interestTagIds);
-            if (interestTags != null && !interestTags.isEmpty()) {
-                user.updateInterestTags(interestTags);
-            }
-        }
-    }
 }

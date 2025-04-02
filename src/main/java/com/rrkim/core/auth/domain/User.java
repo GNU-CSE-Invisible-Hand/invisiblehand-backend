@@ -2,8 +2,6 @@ package com.rrkim.core.auth.domain;
 
 import com.rrkim.core.auth.constant.Gender;
 import com.rrkim.core.common.domain.BaseEntity;
-import com.rrkim.module.myinfo.domain.UserInterestTag;
-import com.rrkim.module.news.domain.Tag;
 import lombok.*;
 
 import jakarta.persistence.*;
@@ -52,11 +50,6 @@ public class User extends BaseEntity {
     @Column(name = "birth_date", nullable = false)
     LocalDate birthDate;
 
-    @NotNull
-    @Builder.Default
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    List<UserInterestTag> userInterestTags = new ArrayList<>();
-
     @Builder.Default
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     List<UserEula> userEulas = new ArrayList<>();
@@ -71,36 +64,6 @@ public class User extends BaseEntity {
             this.userRoles.add(userRole);
         }
     }
-
-    public void addInterestTag(List<Tag> tags) {
-        for (Tag tag : tags) {
-            UserInterestTag userInterestNewsTag = UserInterestTag.builder().user(this).tag(tag).build();
-            this.userInterestTags.add(userInterestNewsTag);
-        }
-    }
-
-    public void updateInterestTags(List<Tag> newInterestTags) {
-        List<UserInterestTag> existingTags = this.getUserInterestTags();
-        Set<Long> newTagIds = newInterestTags.stream()
-                .map(BaseEntity::getId)
-                .collect(Collectors.toSet());
-
-        List<UserInterestTag> tagsToRemove = existingTags.stream()
-                .filter(existingTag -> !newTagIds.contains(existingTag.getTag().getId()))
-                .toList();
-
-        Set<Long> existingTagIds = existingTags.stream()
-                .map(tag -> tag.getTag().getId())
-                .collect(Collectors.toSet());
-
-        List<Tag> tagsToAdd = newInterestTags.stream()
-                .filter(newTag -> !existingTagIds.contains(newTag.getId()))
-                .toList();
-
-        tagsToRemove.forEach(existingTags::remove);
-        this.addInterestTag(tagsToAdd);
-    }
-
 
     public void addEula(List<Eula> eulas) {
         LocalDateTime now = LocalDateTime.now();

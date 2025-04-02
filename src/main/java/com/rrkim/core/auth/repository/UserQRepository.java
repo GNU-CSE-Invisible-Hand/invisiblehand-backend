@@ -22,8 +22,6 @@ import static com.rrkim.core.auth.domain.QRole.role;
 import static com.rrkim.core.auth.domain.QUser.user;
 import static com.rrkim.core.auth.domain.QUserEula.userEula;
 import static com.rrkim.core.auth.domain.QUserRole.userRole;
-import static com.rrkim.module.myinfo.domain.QUserInterestTag.userInterestTag;
-import static com.rrkim.module.news.domain.QTag.tag;
 
 @RequiredArgsConstructor
 @Repository
@@ -35,8 +33,6 @@ public class UserQRepository extends AbstractRepository<User> {
         Map<Long, UserDto> resultMap = queryFactory
                 .select(user)
                 .from(user)
-                .leftJoin(user.userInterestTags, userInterestTag)
-                .leftJoin(userInterestTag.tag, tag)
                 .leftJoin(user.userRoles, userRole)
                 .leftJoin(userRole.role, role)
                 .leftJoin(user.userEulas, userEula)
@@ -51,10 +47,7 @@ public class UserQRepository extends AbstractRepository<User> {
                                 user.userNm,
                                 user.gender,
                                 user.birthDate,
-                                user.useYn,
-                                GroupBy.list(Projections.constructor(String.class,
-                                        Expressions.stringTemplate("CASE WHEN {0} IS NOT NULL THEN {0} ELSE '' END", tag.tagId)
-                                )).as("userInterestTags")
+                                user.useYn
                         )
                 ));
 
