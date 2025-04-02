@@ -1,0 +1,63 @@
+package com.rrkim.module.news.domain;
+
+import static com.querydsl.core.types.PathMetadataFactory.*;
+
+import com.querydsl.core.types.dsl.*;
+
+import com.querydsl.core.types.PathMetadata;
+import javax.annotation.processing.Generated;
+import com.querydsl.core.types.Path;
+import com.querydsl.core.types.dsl.PathInits;
+
+
+/**
+ * QKeyword is a Querydsl query type for Keyword
+ */
+@Generated("com.querydsl.codegen.DefaultEntitySerializer")
+public class QKeyword extends EntityPathBase<Keyword> {
+
+    private static final long serialVersionUID = 17757220L;
+
+    public static final QKeyword keyword = new QKeyword("keyword");
+
+    public final com.rrkim.core.common.domain.QBaseEntity _super = new com.rrkim.core.common.domain.QBaseEntity(this);
+
+    public final ListPath<ArticleKeyword, QArticleKeyword> articleKeywords = this.<ArticleKeyword, QArticleKeyword>createList("articleKeywords", ArticleKeyword.class, QArticleKeyword.class, PathInits.DIRECT2);
+
+    public final StringPath content = createString("content");
+
+    //inherited
+    public final NumberPath<Long> id = _super.id;
+
+    //inherited
+    public final DateTimePath<java.time.LocalDateTime> modDt = _super.modDt;
+
+    //inherited
+    public final NumberPath<Long> modIdx = _super.modIdx;
+
+    //inherited
+    public final StringPath modIp = _super.modIp;
+
+    //inherited
+    public final DateTimePath<java.time.LocalDateTime> regDt = _super.regDt;
+
+    //inherited
+    public final NumberPath<Long> regIdx = _super.regIdx;
+
+    //inherited
+    public final StringPath regIp = _super.regIp;
+
+    public QKeyword(String variable) {
+        super(Keyword.class, forVariable(variable));
+    }
+
+    public QKeyword(Path<? extends Keyword> path) {
+        super(path.getType(), path.getMetadata());
+    }
+
+    public QKeyword(PathMetadata metadata) {
+        super(Keyword.class, metadata);
+    }
+
+}
+
