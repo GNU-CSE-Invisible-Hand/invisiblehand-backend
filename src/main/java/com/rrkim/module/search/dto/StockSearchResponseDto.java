@@ -16,12 +16,14 @@ public class StockSearchResponseDto {
     private String ticker;
     private String companyName;
     private BigDecimal currentPrice;
+    private BigDecimal previousClosePrice;
     private String buyIndex;
 
     public StockSearchResponseDto(Stock stock){
         this.ticker = stock.getTicker();
         this.companyName = stock.getCompanyName();
         this.currentPrice = stock.getCurrentPrice();
+        this.previousClosePrice = stock.getPreviousClosePrice();
         this.buyIndex = stock.getBuyIndex();
     }
 }
