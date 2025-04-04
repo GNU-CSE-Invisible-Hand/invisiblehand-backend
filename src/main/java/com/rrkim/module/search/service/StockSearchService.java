@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
 public class StockSearchService {
     private final StockRepository stockRepository;
 
-    public List<StockSearchResponseDto> searchByTicker(String ticker){
-        return stockRepository.findByTicker(ticker)
+    public List<StockSearchResponseDto> searchByTicker(String keyword){
+        return stockRepository.searchByTickerOrCompany(keyword)
                 .stream()
                 .map(StockSearchResponseDto::new)
                 .collect(Collectors.toList());
